@@ -5,12 +5,12 @@ const {Todo} = require('../models')
 // Create a new todo
 router.post('/todos', async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content,id } = req.body;
     if (!content) {
       return res.status(400).json({ error: 'Todo content is required.' });
     }
 
-    const todo = await Todo.create({ content });
+    const todo = await Todo.create({ content,id });
 
     return res.status(201).json(todo);
   } catch (error) {
@@ -22,8 +22,8 @@ router.post('/todos', async (req, res) => {
 // Get all todos
 router.get('/todos', async (req, res) => {
   try {
-    const todos = await Todo.findAll();
-    return res.status(200).json(todos);
+    const todo = await Todo.findAll();
+    return res.status(200).json(todo);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error.' });
@@ -31,21 +31,20 @@ router.get('/todos', async (req, res) => {
 });
 
 // Get a todo by ID
-router.get('/todos/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const todo = await Todo.findByPk(id);
 
-    if (!todo) {
-      return res.status(404).json({ error: 'Todo not found.' });
+
+router.get('todos/:id', async (req, res) => {
+    try {
+      const todo = await Todo.findById(req.params.id);
+      if (!todo) {
+        return res.status(404).json({ error: 'Todo not found' });
+      }
+      res.json(todo);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to retrieve todo' });
     }
-
-    return res.status(200).json(todo);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal server error.' });
-  }
-});
+  });
+  
 
 // Update a todo by ID
 router.put('/todos/:id', async (req, res) => {
